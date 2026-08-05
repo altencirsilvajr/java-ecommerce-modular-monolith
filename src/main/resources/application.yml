@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: java-ecommerce-modular-monolith
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ecommerce}
+    username: ${DATABASE_USER:ecommerce}
+    password: ${DATABASE_PASSWORD:ecommerce}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 5m
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:ecommerce}
+    password: ${RABBITMQ_PASSWORD:ecommerce}
+  threads:
+    virtual:
+      enabled: true
+
+ecommerce:
+  jwt:
+    secret: ${JWT_SECRET:change-this-development-key-before-production-123456}
+  outbox:
+    enabled: true
+    interval: 1000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  tracing:
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

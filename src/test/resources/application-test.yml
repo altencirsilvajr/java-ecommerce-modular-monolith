@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:ecommerce;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        hbm2ddl:
+          create_namespaces: true
+  flyway:
+    enabled: false
+  cache:
+    type: simple
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+ecommerce:
+  outbox:
+    enabled: false
+  jwt:
+    secret: test-only-secret-that-is-at-least-thirty-two-bytes
+logging:
+  level:
+    root: WARN
