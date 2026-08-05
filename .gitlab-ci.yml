@@ -1,0 +1,14 @@
+image: maven:3.9.12-eclipse-temurin-25
+stages: [test]
+verify:
+  stage: test
+  services: [docker:29-dind]
+  before_script:
+    - apt-get update && apt-get install -y curl
+    - curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+    - apt-get install -y nodejs
+  script:
+    - ./mvnw verify
+    - npm --prefix frontend ci
+    - npm --prefix frontend run test:ci
+    - npm --prefix frontend run build

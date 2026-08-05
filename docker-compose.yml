@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment: {POSTGRES_DB: ecommerce, POSTGRES_USER: ecommerce, POSTGRES_PASSWORD: ecommerce}
+    ports: ["${POSTGRES_PORT:-5432}:5432"]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U ecommerce -d ecommerce"], interval: 5s, timeout: 3s, retries: 20}
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+  redis:
+    image: redis:8-alpine
+    ports: ["${REDIS_PORT:-6379}:6379"]
+    healthcheck: {test: ["CMD", "redis-cli", "ping"], interval: 5s, timeout: 3s, retries: 20}
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment: {RABBITMQ_DEFAULT_USER: ecommerce, RABBITMQ_DEFAULT_PASS: ecommerce}
+    ports: ["${RABBITMQ_PORT:-5672}:5672", "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"]
+    healthcheck: {test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"], interval: 5s, timeout: 5s, retries: 20}
+  api:
+    build: .
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/ecommerce
+      DATABASE_USER: ecommerce
+      DATABASE_PASSWORD: ecommerce
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ecommerce
+      RABBITMQ_PASSWORD: ecommerce
+      JWT_SECRET: local-compose-key-change-in-real-environments-123456
+    ports: ["${API_PORT:-8080}:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+    healthcheck: {test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health/readiness"], interval: 10s, timeout: 5s, retries: 20}
+  frontend:
+    build: frontend
+    ports: ["${FRONTEND_PORT:-4200}:80"]
+    depends_on: {api: {condition: service_healthy}}
+volumes: {postgres-data: {}}

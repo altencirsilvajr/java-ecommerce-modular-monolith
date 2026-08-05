@@ -1,0 +1,12 @@
+@baseUrl = http://localhost:8080
+
+POST {{baseUrl}}/api/v1/users/login
+Content-Type: application/json
+
+{"email":"admin@test.com","password":"Password123!"}
+
+###
+GET {{baseUrl}}/api/v1/catalog/products
+
+###
+GET {{baseUrl}}/actuator/health/readiness
